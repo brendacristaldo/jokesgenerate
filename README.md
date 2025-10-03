@@ -1,17 +1,17 @@
-# 🃏 Gerador de Piadas
+# Gerador de Piadas
 Uma Single Page Application (SPA) desenvolvida em React.js para buscar, exibir e filtrar piadas, utilizando a [JokeAPI](https://v2.jokeapi.dev/).
 
 Este projeto foi desenvolvido como o **Projeto 1 da disciplina de Programação Web Fullstack**, com o objetivo de aplicar conceitos de desenvolvimento frontend com React.js, componentização, gerenciamento de estado e consumo de APIs.
 
 ---
 
-### 📸 Screenshot
+### Screenshot
 
 ![Screenshot do Gerador de Piadas](./screenshot-do-projeto.png)
 
 ---
 
-### ✨ Funcionalidades
+### Funcionalidades
 
 * **Busca por Categorias:** Selecione uma ou mais categorias para filtrar as piadas.
 * **Filtro por Idioma:** Receba piadas em Português, Inglês ou Espanhol.
@@ -22,7 +22,7 @@ Este projeto foi desenvolvido como o **Projeto 1 da disciplina de Programação 
 
 ---
 
-### 🛠️ Tecnologias Utilizadas
+### Tecnologias Utilizadas
 
 O projeto foi construído utilizando as seguintes tecnologias:
 
@@ -35,7 +35,7 @@ O projeto foi construído utilizando as seguintes tecnologias:
 
 ---
 
-### 🚀 Como Executar o Projeto
+### Como Executar o Projeto
 
 Para rodar este projeto localmente, siga os passos abaixo:
 
