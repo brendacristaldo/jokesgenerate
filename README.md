@@ -60,7 +60,7 @@ Para rodar este projeto localmente, siga os passos abaixo:
     ```
 
 5.  **Acesse a aplicação**
-    Abra seu navegador e acesse `http://localhost:5173` (ou a porta que o Vite indicar no seu terminal).
+    Abra seu navegador e acesse `http://localhost:3000` (ou a porta que o Vite indicar no seu terminal).
 
 
 ---
