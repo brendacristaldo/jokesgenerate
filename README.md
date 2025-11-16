@@ -27,7 +27,6 @@ Este projeto foi desenvolvido como o **Projeto 1 da disciplina de Programação 
 O projeto foi construído utilizando as seguintes tecnologias:
 
 * **[React.js](https://reactjs.org/):** Biblioteca principal para a construção da interface de usuário componentizada.
-* **[Vite](https://vitejs.dev/):** Ferramenta de build moderna para um ambiente de desenvolvimento rápido e otimizado.
 * **[Material-UI (MUI)](https://mui.com/):** Biblioteca de componentes React para uma estilização consistente e design responsivo.
 * **[JokeAPI](https://v2.jokeapi.dev/):** API pública utilizada como fonte para obter as piadas em formato JSON.
 * **JavaScript (ES6+):** Linguagem de programação base da aplicação.
