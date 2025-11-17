@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Container, TextField, Button, Typography, Box, Alert, Paper, Link } from '@mui/material';
 
 function Login({ onLogin }) {
-  const [isLogin, setIsLogin] = useState(true); // Estado para alternar entre Login e Registro
+  const [isLogin, setIsLogin] = useState(true); // Controla se estou na tela de Login ou Cadastro
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -13,6 +13,7 @@ function Login({ onLogin }) {
     setError('');
     setSuccess('');
 
+    // Define qual rota chamar no backend dependendo do modo
     const endpoint = isLogin ? '/api/auth/login' : '/api/auth/register';
     
     try {
@@ -25,17 +26,19 @@ function Login({ onLogin }) {
       const data = await response.json();
 
       if (!response.ok) {
-        // Trata array de erros ou mensagem única
+        // Pega a primeira mensagem de erro se for um array, ou a mensagem padrão
         const errorMsg = data.errors ? data.errors[0].msg : (data.msg || 'Erro na requisição');
         throw new Error(errorMsg);
       }
 
       if (isLogin) {
+        // Se logou com sucesso, passa o token para o App
         onLogin(data.token);
       } else {
+        // Se cadastrou, avisa e manda ir pro login
         setSuccess('Conta criada com sucesso! Faça login.');
-        setIsLogin(true); // Volta para a tela de login
-        setPassword('');  // Limpa a senha
+        setIsLogin(true); 
+        setPassword('');
       }
 
     } catch (err) {
@@ -81,7 +84,7 @@ function Login({ onLogin }) {
             <Link 
               component="button" 
               variant="body2" 
-              type="button" // Importante para não submeter o form
+              type="button" // Isso impede que o clique submeta o formulário sem querer
               onClick={() => {
                 setIsLogin(!isLogin);
                 setError('');

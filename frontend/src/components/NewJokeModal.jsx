@@ -6,10 +6,10 @@ import {
 } from '@mui/material';
 
 function NewJokeModal({ open, onClose, token }) {
-  // Tipo fixo como 'single'
+  // Travei o tipo em 'single' para simplificar
   const type = 'single'; 
   const [category, setCategory] = useState('');
-  const [jokeText, setJokeText] = useState(''); // Agora é só o texto da piada
+  const [jokeText, setJokeText] = useState('');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
 
@@ -20,7 +20,7 @@ function NewJokeModal({ open, onClose, token }) {
     const jokeData = {
       type,
       category,
-      joke: jokeText // Envia sempre como 'joke'
+      joke: jokeText // Mando sempre como 'joke' simples
     };
 
     try {
@@ -46,6 +46,7 @@ function NewJokeModal({ open, onClose, token }) {
       setJokeText('');
       setCategory('');
       
+      // Fecha o modal depois de salvar
       setTimeout(() => {
           setSuccess('');
           onClose();
@@ -70,7 +71,7 @@ function NewJokeModal({ open, onClose, token }) {
             label="Categoria" 
             onChange={(e) => setCategory(e.target.value)}
           >
-            {/* Adicionadas TODAS as categorias disponíveis no sistema */}
+            {/* Lista completa de categorias que eu disponibilizo no sistema */}
             <MenuItem value="Programação">Programação</MenuItem>
             <MenuItem value="Diversos">Diversos</MenuItem>
             <MenuItem value="Humor Negro">Humor Negro</MenuItem>

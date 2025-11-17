@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-// REMOVIDO 'Box' dos imports para limpar o warning
 import { Container, Typography, CssBaseline, Button, AppBar, Toolbar } from '@mui/material';
 import JokeForm from './components/JokeForm';
 import JokeDisplay from './components/JokeDisplay';
@@ -12,12 +11,12 @@ function App() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   
-  // REMOVIDO o estado 'language'. Vamos usar uma constante ou string direta.
-  // const [language, setLanguage] = useState('pt'); 
-  const language = 'pt'; // Fixo em Português
+  // Idioma fixo em 'pt'
+  const language = 'pt'; 
 
   const [isModalOpen, setIsModalOpen] = useState(false);
 
+  // Dicionário para traduzir as categorias para o inglês da API externa
   const categoryTranslation = {
     "Programação": "Programming",
     "Diversos": "Misc",
@@ -27,6 +26,7 @@ function App() {
     "Natalino": "Christmas"
   };
 
+  // Garante que o token fique salvo se eu der refresh na página
   useEffect(() => {
     if (token) {
       localStorage.setItem('token', token);
@@ -50,7 +50,7 @@ function App() {
     setJoke(null);
 
     try {
-      // 1. TENTATIVA LOCAL
+      // --- 1. TENTATIVA LOCAL: Busca no meu banco de dados ---
       const localResponse = await fetch('http://localhost:3001/api/jokes', {
         method: 'GET',
         headers: {
@@ -64,10 +64,12 @@ function App() {
       if (localResponse.ok) {
         const localData = await localResponse.json();
         
+        // Filtra as piadas que vieram do banco pelas categorias que o usuário escolheu
         const filteredLocal = localData.filter(j => 
           categories.includes(j.category) || categories.length === 0
         );
 
+        // Se achou alguma coisa no banco, sorteia uma e mostra:
         if (filteredLocal.length > 0) {
            const randomJoke = filteredLocal[Math.floor(Math.random() * filteredLocal.length)];
            setJoke(randomJoke);
@@ -75,25 +77,26 @@ function App() {
         }
       }
 
-      // 2. TENTATIVA EXTERNA (COM A RESTRIÇÃO DE IDIOMA)
+      // --- 2. TENTATIVA EXTERNA: Fallback para a JokeAPI ---
       if (!foundLocal) {
-        // Como language é fixo 'pt', essa verificação passará sempre,
-        // mas mantemos a lógica caso você mude de ideia no futuro.
+        // Trava de segurança: só busco fora se estiver em Português na api externa.
         if (language !== 'pt') {
           throw new Error("Piada não encontrada no banco de dados. A busca externa só está disponível em Português.");
         }
 
         console.log("Buscando na API Externa...");
 
+        // Traduzo as categorias para inglês antes de chamar a API
         const englishCategories = categories.map(cat => categoryTranslation[cat] || cat);
         const categoryString = englishCategories.join(',') || "Any";
 
-        // Forçamos lang=pt
+        // Forço a busca em pt na URL externa
         const externalUrl = `https://v2.jokeapi.dev/joke/${categoryString}?lang=pt`;
 
         const extResponse = await fetch(externalUrl);
         const extData = await extResponse.json();
 
+        // Se nem a API externa tiver piada, mostro essa mensagem personalizada:
         if (extData.error) {
           throw new Error("TE PEGUEI ! Sem piadinhas no banco local ou na API externa dessa vez. Cadastre uma ou escolha outra categoria :D");
         }
@@ -108,6 +111,7 @@ function App() {
     }
   };
 
+  // Se não tiver token, mostra a tela de Login/Cadastro
   if (!token) {
     return (
       <>
@@ -117,6 +121,7 @@ function App() {
     );
   }
 
+  // Se estiver logado, mostra o Gerador de Piadas
   return (
     <>
       <CssBaseline />
@@ -135,13 +140,11 @@ function App() {
           🃏 Gerador de Piadas
         </Typography>
         
-        {/* Removemos as props de language, pois JokeForm não precisa mais delas */}
-        <JokeForm 
-          onSearch={fetchJoke} 
-        />
+        <JokeForm onSearch={fetchJoke} />
 
         <JokeDisplay joke={joke} isLoading={isLoading} error={error} />
       </Container>
+      
       <NewJokeModal 
         open={isModalOpen} 
         onClose={() => setIsModalOpen(false)} 

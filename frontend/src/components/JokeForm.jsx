@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { Button, Checkbox, FormControlLabel, FormGroup, FormLabel, FormControl } from '@mui/material';
 
-// Removemos 'language' e 'setLanguage' das props, pois não precisamos mais deles aqui
 function JokeForm({ onSearch }) {
   const [selectedCategories, setSelectedCategories] = useState([]);
 
@@ -29,8 +28,6 @@ function JokeForm({ onSearch }) {
 
   return (
     <>
-      {/* O seletor de idiomas foi removido daqui */}
-    
       <FormControl component="fieldset" variant="standard" sx={{ mt: 2 }}>
         <FormLabel component="legend">Escolha as categorias da piada</FormLabel>
         <FormGroup>
