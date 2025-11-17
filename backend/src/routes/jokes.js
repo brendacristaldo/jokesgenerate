@@ -1,9 +1,11 @@
 const express = require('express');
 const { body, validationResult } = require('express-validator');
-const authMiddleware = require('../middleware/auth'); // Nosso segurança da porta
+const authMiddleware = require('../middleware/auth');
 const Joke = require('../models/Joke');
+const apicache = require('apicache'); // Importa o cache
 
 const router = express.Router();
+const cache = apicache.middleware; // Cria o middleware de cache
 
 // --- Regras de validação para nova piada ---
 const jokeValidationRules = [
@@ -17,10 +19,9 @@ const jokeValidationRules = [
 /**
  * @route   POST /api/jokes
  * @desc    Cadastra uma nova piada (Requisito 3)
- * @access  Privado (Precisa de token!)
+ * @access  Privado
  */
 router.post('/', [authMiddleware, jokeValidationRules], async (req, res) => {
-  // Se a validação falhar, retorna erro 400
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     return res.status(400).json({ errors: errors.array() });
@@ -29,14 +30,12 @@ router.post('/', [authMiddleware, jokeValidationRules], async (req, res) => {
   const { type, category, joke, setup, delivery } = req.body;
   
   try {
-    // Pego o ID do usuário de dentro do token (req.user)
     const userId = req.user.id;
-
-    // Crio a nova piada
     const newJoke = new Joke(type, setup, delivery, joke, category, userId);
-    
-    // Salvo no Mongo
     await newJoke.save();
+
+    // Opcional: Limpar o cache quando uma nova piada é adicionada para que ela apareça na busca
+    // apicache.clear(req.originalUrl); 
 
     res.status(201).json({ msg: 'Piada inserida com sucesso!', joke: newJoke });
   
@@ -46,18 +45,16 @@ router.post('/', [authMiddleware, jokeValidationRules], async (req, res) => {
   }
 });
 
-
 /**
  * @route   GET /api/jokes
  * @desc    Busca todas as piadas (Requisito 2)
- * @access  Privado (Precisa de token!)
+ * @access  Privado + Cacheado
  */
-router.get('/', authMiddleware, async (req, res) => {
+// AQUI ENTRA O CACHE: Ele fica entre o authMiddleware e a função async
+router.get('/', authMiddleware, cache('5 minutes'), async (req, res) => {
   try {
-    // Busca tudo que tem na coleção de piadas
     const jokes = await Joke.find();
     
-    // Se não tiver nada, avisa
     if (!jokes || jokes.length === 0) {
       return res.status(404).json({ msg: 'Nenhuma piada encontrada' });
     }
@@ -69,6 +66,5 @@ router.get('/', authMiddleware, async (req, res) => {
     res.status(500).send('Erro no servidor');
   }
 });
-
 
 module.exports = router;
