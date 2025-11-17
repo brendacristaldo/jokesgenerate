@@ -1,70 +1,99 @@
-# Gerador de Piadas
-Uma Single Page Application (SPA) desenvolvida em React.js para buscar, exibir e filtrar piadas, utilizando a [JokeAPI](https://v2.jokeapi.dev/).
+# 🃏 Gerador de Piadas (Fullstack)
 
-Este projeto foi desenvolvido como o **Projeto 1 da disciplina de Programação Web Fullstack**, com o objetivo de aplicar conceitos de desenvolvimento frontend com React.js, componentização, gerenciamento de estado e consumo de APIs.
+Uma aplicação web **Fullstack** desenvolvida para buscar, cadastrar e gerenciar piadas. O projeto utiliza uma arquitetura moderna separando Frontend (React) e Backend (Express), com persistência de dados em MongoDB.
 
----
+Este projeto foi desenvolvido como evolução da disciplina de **Programação Web Fullstack**, transformando uma SPA simples em um sistema completo com autenticação, segurança e banco de dados.
 
-### Screenshot
+### ✨ Funcionalidades
 
-![Screenshot do Gerador de Piadas](./screenshot-do-projeto.png)
+* **🔐 Autenticação e Cadastro:** Sistema completo de Login e Registro de usuários utilizando **JWT (JSON Web Tokens)** e criptografia de senhas.
+* **🗄️ Banco de Dados Próprio:** Persistência de usuários e piadas em um banco de dados **MongoDB**.
+* **🔎 Busca Híbrida Inteligente (Fallback):**
+    * O sistema prioriza a busca de piadas no banco de dados local.
+    * Caso não encontre (e o idioma seja Português), busca automaticamente na API externa [JokeAPI](https://v2.jokeapi.dev/) como contingência.
+* **➕ Cadastro de Piadas:** Usuários logados podem contribuir cadastrando novas piadas no sistema.
+* **🛡️ Segurança Reforçada:**
+    * **Sanitização:** Proteção contra NoSQL Injection.
+    * **Rate Limiting:** Proteção contra ataques de força bruta (brute-force) no login.
+    * **Helmet:** Configuração de headers HTTP seguros.
+* **🚀 Performance:** Compressão Gzip nas respostas da API e logs de requisições.
 
----
 
-### Funcionalidades
+### 🛠️ Tecnologias Utilizadas
 
-* **Busca por Categorias:** Selecione uma ou mais categorias para filtrar as piadas.
-* **Filtro por Idioma:** Receba piadas em Português, Inglês ou Espanhol.
-* **Validação de Formulário:** Garante que o usuário selecione ao menos uma categoria antes da busca.
-* **Suporte a Múltiplos Formatos:** Exibe corretamente piadas de formato único (`single`) e de duas partes (`setup/delivery`).
-* **Feedback de Interface:** Apresenta indicadores visuais para estados de carregamento (`loading`) e erros.
-* **Tratamento de Erro Inteligente:** Exibe mensagens de erro específicas, diferenciando falhas de conexão de quando não há piadas disponíveis para os filtros selecionados.
+**Frontend:**
+* **[React.js](https://reactjs.org/):** Biblioteca para construção da interface de usuário.
+* **[Material-UI (MUI)](https://mui.com/):** Biblioteca de componentes para design responsivo.
 
----
+**Backend:**
+* **[Node.js](https://nodejs.org/) & [Express](https://expressjs.com/):** Servidor e API RESTful.
+* **[MongoDB](https://www.mongodb.com/):** Banco de dados NoSQL.
+* **Segurança & Autenticação:** `jsonwebtoken` (JWT), `bcryptjs`, `helmet`, `express-rate-limit`, `express-mongo-sanitize`.
+* **Ferramentas:** `morgan` (logs), `compression` (otimização), `cors`.
 
-### Tecnologias Utilizadas
+### 🚀 Como Executar o Projeto
 
-O projeto foi construído utilizando as seguintes tecnologias:
+Como este é um projeto Fullstack, é necessário configurar e rodar o Backend e o Frontend simultaneamente.
 
-* **[React.js](https://reactjs.org/):** Biblioteca principal para a construção da interface de usuário componentizada.
-* **[Material-UI (MUI)](https://mui.com/):** Biblioteca de componentes React para uma estilização consistente e design responsivo.
-* **[JokeAPI](https://v2.jokeapi.dev/):** API pública utilizada como fonte para obter as piadas em formato JSON.
-* **JavaScript (ES6+):** Linguagem de programação base da aplicação.
-* **CSS:** Utilizado através do sistema de estilização do Material-UI.
+#### Pré-requisitos
+* Node.js instalado.
+* Uma string de conexão com o MongoDB (Atlas ou local).
 
----
+#### 1. Clone o repositório
+```bash
+git clone [https://github.com/seu-usuario/gerador-de-piadas.git](https://github.com/seu-usuario/gerador-de-piadas.git)
+cd jokesgenerate
+````
 
-### Como Executar o Projeto
+#### 2\. Configurando o Backend (Servidor)
 
-Para rodar este projeto localmente, siga os passos abaixo:
-
-1.  **Clone o repositório**
+1.  Acesse a pasta do backend:
     ```bash
-    git clone [https://github.com/seu-usuario/gerador-de-piadas.git](https://github.com/seu-usuario/gerador-de-piadas.git)
+    cd backend
     ```
-
-2.  **Acesse a pasta do projeto**
-    ```bash
-    cd jokesgenerate
-    ```
-
-3.  **Instale as dependências**
+2.  Instale as dependências:
     ```bash
     npm install
     ```
-
-4.  **Inicie o servidor de desenvolvimento**
-    ```bash
-    npm run dev
+3.  Crie um arquivo `.env` na raiz da pasta `backend` com as seguintes variáveis:
+    ```env
+    DATABASE_URL="sua_string_de_conexao_mongodb_aqui"
+    JWT_SECRET="crie_uma_senha_secreta_para_o_token"
+    PORT=3001
     ```
+4.  Inicie o servidor:
+    ```bash
+    npm start
+    ```
+    *O servidor iniciará em `http://localhost:3001`*
 
-5.  **Acesse a aplicação**
-    Abra seu navegador e acesse `http://localhost:3000` (ou a porta que o Vite indicar no seu terminal).
+#### 3\. Configurando o Frontend (Interface)
+
+1.  Abra um **novo terminal** e acesse a pasta do frontend:
+    ```bash
+    cd frontend
+    ```
+2.  Instale as dependências:
+    ```bash
+    npm install
+    ```
+3.  Inicie a aplicação React:
+    ```bash
+    npm start
+    ```
+    *A aplicação abrirá automaticamente no seu navegador em `http://localhost:3000`*
 
 
----
+### 🧪 Testando a Aplicação
 
-### 👩‍💻 Desenvolvido por Brenda Beatriz Cristaldo:
+Para testar rapidamente, você pode criar uma nova conta clicando em "Não tem uma conta? Cadastre-se" na tela de login, ou usar as credenciais de teste (caso tenha rodado o script de seed):
 
-[![LinkedIn](https://img.shields.io/badge/LinkedIn-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/brenda-cristaldo/)
-[![GitHub](https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/brendacristaldo/)
+  * **Email:** `admin@admin.com`
+  * **Senha:** `admin123`
+
+### 👩‍💻 Desenvolvido por
+
+Feito por **Brenda Beatriz Cristaldo** ❤️ 
+
+[](https://www.linkedin.com/in/brenda-cristaldo/)
+[](https://github.com/brendacristaldo/)
