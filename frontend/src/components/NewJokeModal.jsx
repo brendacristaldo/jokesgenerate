@@ -2,14 +2,14 @@ import { useState } from 'react';
 import { 
   Button, TextField, Dialog, DialogActions, DialogContent, 
   DialogTitle, FormControl, InputLabel, Select, MenuItem, 
-  Alert, RadioGroup, FormControlLabel, Radio, FormLabel 
+  Alert 
 } from '@mui/material';
 
 function NewJokeModal({ open, onClose, token }) {
-  const [type, setType] = useState('single');
+  // Tipo fixo como 'single'
+  const type = 'single'; 
   const [category, setCategory] = useState('');
-  const [jokePart1, setJokePart1] = useState(''); // Serve para 'joke' ou 'setup'
-  const [jokePart2, setJokePart2] = useState(''); // Serve para 'delivery'
+  const [jokeText, setJokeText] = useState(''); // Agora é só o texto da piada
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
 
@@ -17,18 +17,11 @@ function NewJokeModal({ open, onClose, token }) {
     setError('');
     setSuccess('');
 
-    // Monta o objeto baseado no tipo
     const jokeData = {
       type,
       category,
+      joke: jokeText // Envia sempre como 'joke'
     };
-
-    if (type === 'single') {
-      jokeData.joke = jokePart1;
-    } else {
-      jokeData.setup = jokePart1;
-      jokeData.delivery = jokePart2;
-    }
 
     try {
       const response = await fetch('http://localhost:3001/api/jokes', {
@@ -43,7 +36,6 @@ function NewJokeModal({ open, onClose, token }) {
       const data = await response.json();
 
       if (!response.ok) {
-        // Se houver erros de validação do express-validator
         if(data.errors) {
              throw new Error(data.errors.map(e => e.msg).join(', '));
         }
@@ -51,12 +43,9 @@ function NewJokeModal({ open, onClose, token }) {
       }
 
       setSuccess('Piada cadastrada com sucesso!');
-      // Limpa o form após sucesso
-      setJokePart1('');
-      setJokePart2('');
+      setJokeText('');
       setCategory('');
       
-      // Fecha o modal após 1.5s
       setTimeout(() => {
           setSuccess('');
           onClose();
@@ -68,57 +57,40 @@ function NewJokeModal({ open, onClose, token }) {
   };
 
   return (
-    <Dialog open={open} onClose={onClose}>
+    <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
       <DialogTitle>Cadastrar Nova Piada</DialogTitle>
       <DialogContent>
         {error && <Alert severity="error" sx={{mb: 2}}>{error}</Alert>}
         {success && <Alert severity="success" sx={{mb: 2}}>{success}</Alert>}
 
-        <FormControl component="fieldset" margin="normal">
-          <FormLabel component="legend">Tipo</FormLabel>
-          <RadioGroup row value={type} onChange={(e) => setType(e.target.value)}>
-            <FormControlLabel value="single" control={<Radio />} label="Única" />
-            <FormControlLabel value="twopart" control={<Radio />} label="Duas Partes" />
-          </RadioGroup>
-        </FormControl>
-
-        <FormControl fullWidth margin="normal">
+        <FormControl fullWidth margin="normal" required>
           <InputLabel>Categoria</InputLabel>
-          <Select value={category} label="Categoria" onChange={(e) => setCategory(e.target.value)}>
+          <Select 
+            value={category} 
+            label="Categoria" 
+            onChange={(e) => setCategory(e.target.value)}
+          >
+            {/* Adicionadas TODAS as categorias disponíveis no sistema */}
             <MenuItem value="Programação">Programação</MenuItem>
-            <MenuItem value="Trocadilho">Trocadilho</MenuItem>
             <MenuItem value="Diversos">Diversos</MenuItem>
+            <MenuItem value="Humor Negro">Humor Negro</MenuItem>
+            <MenuItem value="Trocadilho">Trocadilho</MenuItem>
+            <MenuItem value="Assustador">Assustador</MenuItem>
+            <MenuItem value="Natalino">Natalino</MenuItem>
           </Select>
         </FormControl>
 
-        {type === 'single' ? (
-           <TextField
-             margin="normal"
-             label="A Piada"
-             fullWidth
-             multiline
-             rows={3}
-             value={jokePart1}
-             onChange={(e) => setJokePart1(e.target.value)}
-           />
-        ) : (
-          <>
-            <TextField
-             margin="normal"
-             label="Pergunta (Setup)"
-             fullWidth
-             value={jokePart1}
-             onChange={(e) => setJokePart1(e.target.value)}
-           />
-           <TextField
-             margin="normal"
-             label="Resposta (Delivery)"
-             fullWidth
-             value={jokePart2}
-             onChange={(e) => setJokePart2(e.target.value)}
-           />
-          </>
-        )}
+        <TextField
+          margin="normal"
+          label="A Piada"
+          fullWidth
+          required
+          multiline
+          rows={4}
+          value={jokeText}
+          onChange={(e) => setJokeText(e.target.value)}
+          placeholder="Digite sua piada aqui..."
+        />
 
       </DialogContent>
       <DialogActions>

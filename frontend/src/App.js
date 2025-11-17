@@ -1,21 +1,32 @@
 import { useState, useEffect } from 'react';
-import { Container, Typography, CssBaseline, Button, AppBar, Toolbar, Box } from '@mui/material';
+// REMOVIDO 'Box' dos imports para limpar o warning
+import { Container, Typography, CssBaseline, Button, AppBar, Toolbar } from '@mui/material';
 import JokeForm from './components/JokeForm';
 import JokeDisplay from './components/JokeDisplay';
 import Login from './components/Login';
 import NewJokeModal from './components/NewJokeModal';
 
 function App() {
-  // Estado para armazenar o token JWT
   const [token, setToken] = useState(localStorage.getItem('token'));
-  
   const [joke, setJoke] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [language, setLanguage] = useState('pt');
+  
+  // REMOVIDO o estado 'language'. Vamos usar uma constante ou string direta.
+  // const [language, setLanguage] = useState('pt'); 
+  const language = 'pt'; // Fixo em Português
+
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  // Efeito para persistir o token se a página for recarregada
+  const categoryTranslation = {
+    "Programação": "Programming",
+    "Diversos": "Misc",
+    "Humor Negro": "Dark",
+    "Trocadilho": "Pun",
+    "Assustador": "Spooky",
+    "Natalino": "Christmas"
+  };
+
   useEffect(() => {
     if (token) {
       localStorage.setItem('token', token);
@@ -33,49 +44,61 @@ function App() {
     setJoke(null);
   };
 
- // ... (imports e estados continuam iguais)
-
   const fetchJoke = async (categories) => {
     setIsLoading(true);
     setError(null);
     setJoke(null);
 
     try {
-      // Agora chamamos o SEU backend!
-      // Nota: No backend, implementamos uma busca simples que retorna TODAS as piadas.
-      // Para filtrar por categoria no backend, precisaríamos ajustar a rota GET lá.
-      // Por enquanto, vamos buscar todas e filtrar aqui no front (ou apenas exibir).
-      
-      const response = await fetch('http://localhost:3001/api/jokes', {
+      // 1. TENTATIVA LOCAL
+      const localResponse = await fetch('http://localhost:3001/api/jokes', {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
-          // IMPORTANTE: Envia o token no cabeçalho
           'Authorization': `Bearer ${token}` 
         }
       });
 
-      const data = await response.json();
+      let foundLocal = false;
+      
+      if (localResponse.ok) {
+        const localData = await localResponse.json();
+        
+        const filteredLocal = localData.filter(j => 
+          categories.includes(j.category) || categories.length === 0
+        );
 
-      if (!response.ok) {
-        throw new Error(data.msg || 'Erro ao buscar piadas');
+        if (filteredLocal.length > 0) {
+           const randomJoke = filteredLocal[Math.floor(Math.random() * filteredLocal.length)];
+           setJoke(randomJoke);
+           foundLocal = true;
+        }
       }
 
-      // O backend retorna um ARRAY de piadas.
-      // O componente JokeDisplay espera UMA piada.
-      // Vamos pegar uma aleatória da lista que veio do banco.
-      if (data.length > 0) {
-        // Filtra localmente pelas categorias selecionadas (opcional, mas bom para testar)
-        const filteredJokes = data.filter(j => categories.includes(j.category) || categories.length === 0);
-        
-        if (filteredJokes.length > 0) {
-           const randomJoke = filteredJokes[Math.floor(Math.random() * filteredJokes.length)];
-           setJoke(randomJoke);
-        } else {
-           throw new Error("Nenhuma piada encontrada para estas categorias no banco.");
+      // 2. TENTATIVA EXTERNA (COM A RESTRIÇÃO DE IDIOMA)
+      if (!foundLocal) {
+        // Como language é fixo 'pt', essa verificação passará sempre,
+        // mas mantemos a lógica caso você mude de ideia no futuro.
+        if (language !== 'pt') {
+          throw new Error("Piada não encontrada no banco de dados. A busca externa só está disponível em Português.");
         }
-      } else {
-        throw new Error("O banco de piadas está vazio! Cadastre uma piada.");
+
+        console.log("Buscando na API Externa...");
+
+        const englishCategories = categories.map(cat => categoryTranslation[cat] || cat);
+        const categoryString = englishCategories.join(',') || "Any";
+
+        // Forçamos lang=pt
+        const externalUrl = `https://v2.jokeapi.dev/joke/${categoryString}?lang=pt`;
+
+        const extResponse = await fetch(externalUrl);
+        const extData = await extResponse.json();
+
+        if (extData.error) {
+          throw new Error("TE PEGUEI ! Sem piadinhas no banco local ou na API externa dessa vez. Cadastre uma ou escolha outra categoria :D");
+        }
+
+        setJoke(extData);
       }
 
     } catch (err) {
@@ -85,7 +108,6 @@ function App() {
     }
   };
 
-  // Renderização Condicional: Se não tem token, mostra Login
   if (!token) {
     return (
       <>
@@ -95,13 +117,12 @@ function App() {
     );
   }
 
-  // Se tem token, mostra o App principal
   return (
     <>
       <CssBaseline />
       <AppBar position="static">
         <Toolbar>
-          <Typography variant="h6" component="div" sx={{ flexGJow: 1 }}>
+          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
             Fullstack Jokes
           </Typography>
           <Button color="inherit" onClick={() => setIsModalOpen(true)}>Nova Piada</Button>
@@ -114,10 +135,9 @@ function App() {
           🃏 Gerador de Piadas
         </Typography>
         
+        {/* Removemos as props de language, pois JokeForm não precisa mais delas */}
         <JokeForm 
           onSearch={fetchJoke} 
-          language={language} 
-          setLanguage={setLanguage} 
         />
 
         <JokeDisplay joke={joke} isLoading={isLoading} error={error} />

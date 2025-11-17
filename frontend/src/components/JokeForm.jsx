@@ -1,12 +1,10 @@
 import { useState } from 'react';
 import { Button, Checkbox, FormControlLabel, FormGroup, FormLabel, FormControl } from '@mui/material';
-import LanguageSelector from './LanguageSelector';
 
-function JokeForm({ onSearch, language, setLanguage }) {
+// Removemos 'language' e 'setLanguage' das props, pois não precisamos mais deles aqui
+function JokeForm({ onSearch }) {
   const [selectedCategories, setSelectedCategories] = useState([]);
 
-  // AGORA: Usamos os mesmos nomes que estão no banco de dados (Português)
-  // Isso garante que o filtro 'Trocadilho' busque 'Trocadilho' no banco.
   const categories = [
     "Programação", 
     "Diversos", 
@@ -31,15 +29,14 @@ function JokeForm({ onSearch, language, setLanguage }) {
 
   return (
     <>
-      <LanguageSelector language={language} setLanguage={setLanguage} />
+      {/* O seletor de idiomas foi removido daqui */}
     
-      <FormControl component="fieldset" variant="standard">
+      <FormControl component="fieldset" variant="standard" sx={{ mt: 2 }}>
         <FormLabel component="legend">Escolha as categorias da piada</FormLabel>
         <FormGroup>
           {categories.map(cat => (
             <FormControlLabel
               key={cat}
-              // O 'name' agora é o nome em português (ex: "Trocadilho")
               control={<Checkbox onChange={handleCheckboxChange} name={cat} />}
               label={cat} 
             />
