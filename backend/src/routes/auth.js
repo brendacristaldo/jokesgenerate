@@ -35,7 +35,7 @@ const registerValidationRules = [
  * @route   POST /api/auth/login
  * @desc    Autentica o usuário e devolve o token
  */
-router.post('/login', loginValidationRules, async (req, res) => {
+router.post('/tokens', loginValidationRules, async (req, res) => {
   // Checa se passou na validação
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -87,7 +87,7 @@ router.post('/login', loginValidationRules, async (req, res) => {
  * @route   POST /api/auth/register
  * @desc    Cria um novo usuário com senha forte
  */
-router.post('/register', registerValidationRules, async (req, res) => {
+router.post('/users', registerValidationRules, async (req, res) => {
   // Se a senha for fraca, o erro vai aparecer aqui
   const errors = validationResult(req);
   if (!errors.isEmpty()) {

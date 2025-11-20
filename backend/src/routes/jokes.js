@@ -33,9 +33,9 @@ router.post('/', [authMiddleware, jokeValidationRules], async (req, res) => {
     const userId = req.user.id;
     const newJoke = new Joke(type, setup, delivery, joke, category, userId);
     await newJoke.save();
-
-    // Opcional: Limpar o cache quando uma nova piada é adicionada para que ela apareça na busca
-    // apicache.clear(req.originalUrl); 
+    
+    // Limpa o cache da rota de listagem para que a nova piada apareça
+    apicache.clear('/api/jokes');
 
     res.status(201).json({ msg: 'Piada inserida com sucesso!', joke: newJoke });
   

@@ -14,10 +14,10 @@ function Login({ onLogin }) {
     setSuccess('');
 
     // Define qual rota chamar no backend dependendo do modo
-    const endpoint = isLogin ? '/api/auth/login' : '/api/auth/register';
+    const endpoint = isLogin ? '/api/auth/tokens' : '/api/auth/users';
     
     try {
-      const response = await fetch(`http://localhost:3001${endpoint}`, {
+      const response = await fetch(`https://127.0.0.1:3001${endpoint}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),

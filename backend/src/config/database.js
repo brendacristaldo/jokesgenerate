@@ -1,22 +1,25 @@
-// Carrega as variáveis do .env para o process.env
 require('dotenv').config();
-
 const { MongoClient } = require('mongodb');
 
 const uri = process.env.DATABASE_URL;
-const client = new MongoClient(uri);
+
+// CONFIGURAÇÃO DO POOL DE CONEXÕES (EXPLÍCITA)
+const client = new MongoClient(uri, {
+  maxPoolSize: 10, // Mantém até 10 conexões ativas no pool
+  minPoolSize: 2,  // Mantém pelo menos 2 conexões ativas
+});
 
 async function connectToDatabase() {
-  try {
-    await client.connect();
-    console.log('Conectado ao MongoDB com sucesso!');
-
-    const db = client.db('jokesdb'); // O nome do seu banco
-    return { client, db };
-  } catch (error) {
-    console.error('Erro ao conectar ao MongoDB:', error);
-    process.exit(1); // Encerra a aplicação se não conseguir conectar
-  }
+    // ... (o resto da função continua igual)
+    try {
+        await client.connect();
+        console.log('Conectado ao MongoDB com sucesso!');
+        const db = client.db('jokesdb');
+        return { client, db };
+      } catch (error) {
+        console.error('Erro ao conectar ao MongoDB:', error);
+        process.exit(1);
+      }
 }
 
 module.exports = { connectToDatabase };
