@@ -1,11 +1,10 @@
+// backend/src/routes/jokes.js
 const express = require('express');
 const { body, validationResult } = require('express-validator');
 const authMiddleware = require('../middleware/auth');
 const Joke = require('../models/Joke');
-const apicache = require('apicache'); // Importa o cache
 
 const router = express.Router();
-const cache = apicache.middleware; // Cria o middleware de cache
 
 // --- Regras de validação para nova piada ---
 const jokeValidationRules = [
@@ -18,7 +17,7 @@ const jokeValidationRules = [
 
 /**
  * @route   POST /api/jokes
- * @desc    Cadastra uma nova piada (Requisito 3)
+ * @desc    Cadastra uma nova piada
  * @access  Privado
  */
 router.post('/', [authMiddleware, jokeValidationRules], async (req, res) => {
@@ -34,9 +33,6 @@ router.post('/', [authMiddleware, jokeValidationRules], async (req, res) => {
     const newJoke = new Joke(type, setup, delivery, joke, category, userId);
     await newJoke.save();
 
-    // Opcional: Limpar o cache quando uma nova piada é adicionada para que ela apareça na busca
-    // apicache.clear(req.originalUrl); 
-
     res.status(201).json({ msg: 'Piada inserida com sucesso!', joke: newJoke });
   
   } catch (err) {
@@ -47,11 +43,11 @@ router.post('/', [authMiddleware, jokeValidationRules], async (req, res) => {
 
 /**
  * @route   GET /api/jokes
- * @desc    Busca todas as piadas (Requisito 2)
- * @access  Privado + Cacheado
+ * @desc    Busca todas as piadas
+ * @access  Privado
+ * @note    O cache agora é gerenciado pelo middleware 'simpleCache' no index.js
  */
-// AQUI ENTRA O CACHE: Ele fica entre o authMiddleware e a função async
-router.get('/', authMiddleware, cache('5 minutes'), async (req, res) => {
+router.get('/', authMiddleware, async (req, res) => {
   try {
     const jokes = await Joke.find();
     

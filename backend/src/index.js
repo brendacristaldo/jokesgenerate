@@ -1,68 +1,113 @@
+// backend/src/index.js
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
-const helmet = require('helmet');
-const rateLimit = require('express-rate-limit');
-const compression = require('compression');
-const morgan = require('morgan');
+const fs = require('fs');
+const https = require('https');
+const xss = require('xss');
+const winston = require('winston');
+const expressWinston = require('express-winston');
+
+// --- 1. REQUISITO DE PERFORMANCE: Compressão ---
+const compression = require('compression'); 
+
+// Importa nosso Cache Manual (que criamos no passo anterior)
+const simpleCache = require('./middleware/cache');
 
 const authRoutes = require('./routes/auth');
 const jokeRoutes = require('./routes/jokes');
+const database = require('./config/database');
 
 const app = express();
 
-// 1. LOGS
-app.use(morgan('dev'));
+// --- 1. CONFIGURAÇÃO DE LOGS (Monitoramento) ---
+app.use(expressWinston.logger({
+  transports: [
+    new winston.transports.Console(),
+    new winston.transports.File({ filename: 'access.log' })
+  ],
+  format: winston.format.combine(
+    winston.format.colorize(),
+    winston.format.json()
+  ),
+  meta: true,
+  msg: "HTTP {{req.method}} {{req.url}}",
+  expressFormat: true,
+  colorize: false,
+}));
 
-// 2. SEGURANÇA DE HEADERS
-app.use(helmet());
+// --- ATIVA A COMPRESSÃO GZIP ---
+// Deve vir antes das rotas para comprimir tudo o que for enviado
+app.use(compression());
 
-// 3. CORS
+// Configurações padrão do Express
 app.use(cors());
-
-// 4. LIMITADOR DE TAXA
-const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutos
-  max: 100, // limite de 100 requisições por IP
-  message: 'Muitas requisições criadas a partir deste IP, por favor tente novamente após 15 minutos'
-});
-app.use('/api/', limiter);
-
-// 5. PARSER DE JSON
 app.use(express.json());
 
-// 6. SANITIZAÇÃO MANUAL (Correção do erro)
-// Impede NoSQL Injection removendo chaves com $ ou .
+// --- 2. MIDDLEWARE ANTI-XSS (Segurança) ---
 app.use((req, res, next) => {
-  const clean = (data) => {
-    if (data && typeof data === 'object') {
-      for (const key in data) {
-        if (key.startsWith('$') || key.includes('.')) {
-          delete data[key];
-        } else {
-          clean(data[key]);
-        }
+  if (req.body) {
+    for (const key in req.body) {
+      if (typeof req.body[key] === 'string') {
+        req.body[key] = xss(req.body[key]);
       }
     }
-    return data;
-  };
-  
-  if (req.body) req.body = clean(req.body);
-  if (req.query) req.query = clean(req.query);
-  if (req.params) req.params = clean(req.params);
-  
+  }
+  if (req.query) {
+    for (const key in req.query) {
+      if (typeof req.query[key] === 'string') {
+        req.query[key] = xss(req.query[key]);
+      }
+    }
+  }
   next();
 });
 
-// 7. COMPRESSÃO
-app.use(compression());
+// Conexão com Banco de Dados
+database.connectToDatabase();
 
-// --- Rotas da API ---
+// Rotas
 app.use('/api/auth', authRoutes);
-app.use('/api/jokes', jokeRoutes);
 
-const PORT = process.env.PORT || 3001;
+// --- 3. REQUISITO DE PERFORMANCE: Cache ---
+// Usamos nosso simpleCache(5) -> Cache de 5 minutos na rota de piadas
+app.use('/api/jokes', simpleCache(5), jokeRoutes);
 
-app.listen(PORT, () => {
-  console.log(`Servidor seguro rodando na porta ${PORT}`);
+// Rota básica de teste
+app.get('/', (req, res) => {
+  res.send('API de Piadas: Segura (HTTPS + XSS), Monitorada (Logs) e Rápida (Cache + Compressão)!');
 });
+
+// --- LOGS DE ERRO ---
+app.use(expressWinston.errorLogger({
+  transports: [
+    new winston.transports.Console(),
+    new winston.transports.File({ filename: 'error.log' })
+  ],
+  format: winston.format.combine(
+    winston.format.colorize(),
+    winston.format.json()
+  )
+}));
+
+// --- 4. INICIALIZAÇÃO HTTPS (Criptografia) ---
+try {
+  const httpsOptions = {
+    key: fs.readFileSync(__dirname + '/server.key'),
+    cert: fs.readFileSync(__dirname + '/server.cert')
+  };
+
+  const PORT = process.env.PORT || 3001;
+
+  https.createServer(httpsOptions, app).listen(PORT, () => {
+    console.log(`🔒 Servidor HTTPS rodando na porta ${PORT}`);
+    console.log(`   - Segurança: ATIVADA (HTTPS + XSS)`);
+    console.log(`   - Performance: ATIVADA (Cache + Compressão)`);
+    console.log(`   - Monitoramento: ATIVADO (Logs)`);
+    console.log(`Acesse em: https://localhost:${PORT}`);
+  });
+
+} catch (error) {
+  console.error("ERRO FATAL: Certificados SSL não encontrados.");
+  process.exit(1);
+}
