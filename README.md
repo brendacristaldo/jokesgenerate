@@ -61,11 +61,23 @@ cd jokesgenerate
     JWT_SECRET="crie_uma_senha_secreta_para_o_token"
     PORT=3001
     ```
-4.  Inicie o servidor:
+4. Configuração de Segurança (HTTPS):
+    Para habilitar o HTTPS local, é necessário gerar os certificados autoassinados.
+    Dentro da pasta backend/src, execute o comando (Git Bash/Linux):
+
     ```bash
+    openssl req -nodes -new -x509 -keyout server.key -out server.cert
+    ```
+    (Pressione Enter para todas as perguntas).
+
+    Inicie o servidor:
+
+    ``bash
     npm start
     ```
-    *O servidor iniciará em `http://localhost:3001`*
+    O servidor iniciará seguro em https://localhost:3001
+
+5. Configurando o Frontend (Interface)
 
 #### 3\. Configurando o Frontend (Interface)
 
@@ -86,10 +98,7 @@ cd jokesgenerate
 
 ### 🧪 Testando a Aplicação
 
-Para testar rapidamente, você pode criar uma nova conta clicando em "Não tem uma conta? Cadastre-se" na tela de login, ou usar as credenciais de teste (caso tenha rodado o script de seed):
-
-  * **Email:** `admin@admin.com`
-  * **Senha:** `admin123`
+Para testar rapidamente, você pode criar uma nova conta clicando em "Não tem uma conta? Cadastre-se" na tela de login!
 
 ### 👩‍💻 Desenvolvido por
 
