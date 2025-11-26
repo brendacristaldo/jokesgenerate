@@ -51,7 +51,7 @@ function App() {
 
     try {
       // --- 1. TENTATIVA LOCAL: Busca no meu banco de dados ---
-      const localResponse = await fetch('http://localhost:3001/api/jokes', {
+      const localResponse = await fetch('https://localhost:3001/api/jokes', {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',

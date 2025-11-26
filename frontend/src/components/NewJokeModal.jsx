@@ -24,7 +24,7 @@ function NewJokeModal({ open, onClose, token }) {
     };
 
     try {
-      const response = await fetch('http://localhost:3001/api/jokes', {
+      const response = await fetch('https://localhost:3001/api/jokes', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
